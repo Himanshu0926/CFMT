@@ -25,7 +25,7 @@ SECRET_KEY = 't=j4!(5dg-qhv!njtt9%vcg6ei(r1l7=d#0w!$h_h7iukg6^2s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1','inmobi-test.herokuapp.com']
 
 
 # Application definition
