@@ -47,8 +47,8 @@
 
 <canvas id="myChart" class="chart1" aria-label="chart" role="img"></canvas>
 
-<div class="chart-container" style="position: relative; height:60vh; width:70vw;margin-left:auto;margin-right:auto">
-    <canvas id="myChart1" class="chart2" aria-label="chart" role="img"></canvas>
+<div class="chart-container" style="position: relative; margin-left:auto; margin-right:auto;">
+    <canvas id="myChart1" class="chart2" aria-label="chart" role="img" width="500px"></canvas>
     <canvas id="myChart2" class="chart2" aria-label="chart" role="img"></canvas>
 </div>
 
@@ -118,7 +118,7 @@ get(child(dbRef, `Data/`)).then((snapshot) => {
        snapshot.forEach(
             function(records){
                 if (Dataarr[i] == records.val().FundedDate) {
-                    sum = sum + records.val().RaisedAmt
+                    sum = sum + parseInt(records.val().RaisedAmt)
                 }
             }
        )
@@ -234,7 +234,7 @@ get(child(dbRef, `Data/`)).then((snapshot) => {
        snapshot.forEach(
             function(records){
                 if (Dataarr1[i] == records.val().Category) {
-                    sum = sum + records.val().RaisedAmt
+                    sum = sum + parseInt(records.val().RaisedAmt)
                 }
             }
        )
