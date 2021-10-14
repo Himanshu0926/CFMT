@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Operations</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+<body>
+<header>
+    <h1>Company Funding Management Tool</h1>
+</header>
+<div class="Add_entry" ><h2>Add a new entry to firebase</h2></div>
+<div class="Entries">
+    <form id="add_form">
+        <h3 class="col_name">Rowno : <input class="Col_space" type="text" name="Rowno" id="Rowno" style="color:black"> </h3>
+        <h3 class="col_name">Permalink : <input class="Col_space" type="text" name="Permalink" id="Permalink" style="color:black"> </h3>
+        <h3 class="col_name">Company : <input class="Col_space" type="text" name="Company" id="Company" style="color:black"> </h3>
+        <h3 class="col_name">NumEmps : <input class="Col_space" type="text" name="NumEmps" id="NumEmps" style="color:black"> </h3>
+        <h3 class="col_name">Category : <input class="Col_space" type="text" name="Category" id="Category" style="color:black"> </h3>
+        <h3 class="col_name">City : <input class="Col_space" type="text" name="City" id="City" style="color:black"> </h3>
+        <h3 class="col_name">State : <input class="Col_space" type="text" name="State" id="State" style="color:black"> </h3>
+        <h3 class="col_name">FundedDate : <input class="Col_space" type="text" name="FundedDate" id="FundedDate" style="color:black"> </h3>
+        <h3 class="col_name">RaisedAmt : <input class="Col_space" type="text" name="RaisedAmt" id="RaisedAmt" style="color:black"> </h3>
+        <h3 class="col_name">RaisedCurrency : <input class="Col_space" type="text" name="RaisedCurrency" id="RaisedCurrency" style="color:black"> </h3>
+        <h3 class="col_name">Round : <input class="Col_space" type="text" name="Round" id="Round" style="color:black"> </h3>
+    <div id="outer">
+        <div class="inner"><button type="submit" class="msgBtn" >ADD</button></div>
+        <div class="inner"><button type="submit" class="msgBtn1" >UPDATE</button></div>
+        <div class="inner"><button type="submit" class="msgBtn2">REMOVE</button></div>
+    </div>
+    </form>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"> </script>
+{% load staticfiles %}
+<script type="module">
+
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-analytics.js";
+  import { getDatabase , ref , child , get , set , push , onValue } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAktSHUf5vchzr63pT2r3EkCuGEXZPghe8",
+    authDomain: "inmobi-1a433.firebaseapp.com",
+    databaseURL: "https://inmobi-1a433-default-rtdb.firebaseio.com",
+    projectId: "inmobi-1a433",
+    storageBucket: "inmobi-1a433.appspot.com",
+    messagingSenderId: "164911697942",
+    appId: "1:164911697942:web:0757c8193d79410c5fa537",
+    measurementId: "G-Q4GSTR9W8D"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+
+onValue(ref(database, 'Data/'), (snapshot) => {
+    snapshot.forEach((s1) => {
+    const childKey = s1.key;
+    console.log(childKey);
+    const childData = s1.val();
+ });
+});
+
+
+//Listen for Add form
+document.getElementById('add_form').addEventListener('submit',submitform);
+function submitform(e){
+    e.preventDefault();
+const dbRef = ref(getDatabase());
+var Rowno = 0
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+            Rowno = Rowno+1;
+            console.log(Rowno);
+        });
+  savemsg(Rowno,Permalink,Company,NumEmps,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+  }
+
+}).catch((error) => {
+  console.error(error);
+});
+    var Permalink = getInputVal('Permalink');
+    var Company = getInputVal('Company');
+    var NumEmps = getInputVal('NumEmps');
+    var City = getInputVal('City');
+    var State = getInputVal('State');
+    var FundedDate = getInputVal('FundedDate');
+    var RaisedAmt = getInputVal('RaisedAmt');
+    var RaisedCurrency = getInputVal('RaisedCurrency');
+    var Round = getInputVal('Round');
+    console.log(Rowno);
+}
+
+
+
+function getInputVal(id){
+    return document.getElementById(id).value;
+}
+
+
+
+function savemsg(Rowno,Permalink,Company,NumEmps,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round){
+    const db = getDatabase();
+    set(ref(db, 'Data/' + Rowno),{
+    Permalink:Permalink,
+    Company:Company,
+    NumEmps:NumEmps,
+    City:City,
+    State:State,
+    FundedDate:FundedDate,
+    RaisedAmt:RaisedAmt,
+    RaisedCurrency:RaisedCurrency,
+    Round:Round
+    });
+}
+
+document.getElementById('add_form').addEventListener('submit',deleterow);
+function deleterow(e){
+    e.preventDefault();
+
+    var Rowno = getInputVal('Rowno');
+    delete1(Rowno)
+    }
+function delete1(Rowno){
+    const db = getDatabase();
+    remove(ref(db, 'Data/' + Rowno));
+}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>CFMT</title>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+<body>
+<header>
+    <h1>Company Funding Management Tool</h1>
+</header>
+
+<a href="{% url 'operations' %}" class="button">Operations</a>
+<div class="inner"><button type="submit" id="msgBtn" >ALL Data In TABULAR FORM</button></div>
+    <div id="outer">
+        <div class="inner"><button type="submit" id="msgBtn1" >SEED</button></div>
+        <div class="inner"><button type="submit" id="msgBtn2">A</button></div>
+        <div class="inner"><button type="submit" id="msgBtn3">B</button></div>
+        <div class="inner"><button type="submit" id="msgBtn4">C</button></div>
+        <div class="inner"><button type="submit" id="msgBtn5">D</button></div>
+        <div class="inner"><button type="submit" id="msgBtn6">E</button></div>
+        <div class="inner"><button type="submit" id="msgBtn7">ANGEL</button></div>
+        <div class="inner"><button type="submit" id="msgBtn8">BAR CHART</button></div>
+        <div class="inner"><button type="submit" id="msgBtn9">PIE CHART</button></div>
+        <div class="inner"><button type="submit" id="msgBtn10">PIE CHART2</button></div>
+    </div>
+<table class="styled-table" id="table2" >
+    <thead>
+        <th>Rowno</th>
+        <th>Permalink</th>
+        <th>Company</th>
+        <th>NumEmps</th>
+        <th>Category</th>
+        <th>City</th>
+        <th>State</th>
+        <th>FundedDate</th>
+        <th>RaisedAmt</th>
+        <th>RaisedCurrency</th>
+        <th>Round</th>
+    </thead>
+    <tbody id="tbody1">
+
+    </tbody>
+</table>
+
+<canvas id="myChart" class="chart1" aria-label="chart" role="img"></canvas>
+
+<div class="chart-container" style="position: relative; height:60vh; width:70vw;margin-left:auto;margin-right:auto">
+    <canvas id="myChart1" class="chart2" aria-label="chart" role="img"></canvas>
+    <canvas id="myChart2" class="chart2" aria-label="chart" role="img"></canvas>
+</div>
+
+
+{% load staticfiles %}
+<script src="{% static 'js/main.js' %}"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"> </script>
+{% load staticfiles %}
+<script type="module">
+
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-analytics.js";
+  import { getDatabase , ref , child , get , set , push , onValue } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAktSHUf5vchzr63pT2r3EkCuGEXZPghe8",
+    authDomain: "inmobi-1a433.firebaseapp.com",
+    databaseURL: "https://inmobi-1a433-default-rtdb.firebaseio.com",
+    projectId: "inmobi-1a433",
+    storageBucket: "inmobi-1a433.appspot.com",
+    messagingSenderId: "164911697942",
+    appId: "1:164911697942:web:0757c8193d79410c5fa537",
+    measurementId: "G-Q4GSTR9W8D"
+  };
+console.log("{{fdate}}");
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+var Rowno = 0;
+
+document.getElementById('msgBtn').addEventListener('click',readfiles);
+document.getElementById('msgBtn1').addEventListener('click',seedrows);
+document.getElementById('msgBtn2').addEventListener('click',arows);
+document.getElementById('msgBtn3').addEventListener('click',brows);
+document.getElementById('msgBtn4').addEventListener('click',crows);
+document.getElementById('msgBtn5').addEventListener('click',drows);
+document.getElementById('msgBtn6').addEventListener('click',erows);
+document.getElementById('msgBtn7').addEventListener('click',angelrows);
+document.getElementById('msgBtn8').addEventListener('click',barchart);
+document.getElementById('msgBtn9').addEventListener('click',piechart);
+document.getElementById('msgBtn10').addEventListener('click',piechart2);
+
+
+
+function barchart(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    var Dataarr = [];
+    var Sumarr = [];
+    var sum = 0;
+    snapshot.forEach(
+        function(records){
+                if (Dataarr.includes(records.val().FundedDate)) {
+                    //
+                } else {
+                    Dataarr.push(records.val().FundedDate)
+                }
+   });
+   for (var i=0; i < Dataarr.length; i++){
+       snapshot.forEach(
+            function(records){
+                if (Dataarr[i] == records.val().FundedDate) {
+                    sum = sum + records.val().RaisedAmt
+                }
+            }
+       )
+       Sumarr.push(sum);
+       console.log(Sumarr);
+       sum = 0;
+   }
+bar(Dataarr, Sumarr);
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+
+}
+
+
+
+
+
+
+function readfiles(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+//Chart creating
+function bar(dataarr,sumarr) {
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: dataarr,
+        datasets: [{
+            label: 'Amount invested',
+            data: sumarr,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 3
+        }]
+    },
+    options: {
+        scales: {
+            responsive: false,
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+};
+
+
+//PIECHART
+
+
+
+function piechart(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    var Dataarr1 = [];
+    var Sumarr1 = [];
+    var sum = 0;
+    snapshot.forEach(
+        function(records){
+                if (Dataarr1.includes(records.val().Category)) {
+                    //
+                } else {
+                    Dataarr1.push(records.val().Category)
+                }
+   });
+   console.log(Dataarr1);
+   for (var i=0; i < Dataarr1.length; i++){
+       snapshot.forEach(
+            function(records){
+                if (Dataarr1[i] == records.val().Category) {
+                    sum = sum + records.val().RaisedAmt
+                }
+            }
+       )
+       Sumarr1.push(sum);
+       console.log(Sumarr1);
+       sum = 0;
+   }
+pie(Dataarr1, Sumarr1);
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+
+
+function pie(dataarr1,sumarr1) {
+var ctx = document.getElementById('myChart1').getContext('2d');
+var myChart1 = new Chart(ctx, {
+type: 'pie',
+data: {
+labels: dataarr1,
+datasets: [
+{
+data: sumarr1,
+backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 3
+},
+],
+},
+});
+}
+
+
+//PIECHART2
+
+
+function piechart2(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    var Dataarr2 = [];
+    var Sumarr2 = [];
+    var sum = 0;
+    snapshot.forEach(
+        function(records){
+                if (Dataarr2.includes(records.val().State)) {
+                    //
+                } else {
+                    Dataarr2.push(records.val().State)
+                }
+   });
+   console.log(Dataarr2);
+   for (var i=0; i < Dataarr2.length; i++){
+       snapshot.forEach(
+            function(records){
+                if (Dataarr2[i] == records.val().State) {
+                    sum = sum + records.val().RaisedAmt
+                }
+            }
+       )
+       Sumarr2.push(sum);
+       console.log(Sumarr2);
+       sum = 0;
+   }
+pie2(Dataarr2, Sumarr2);
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+
+
+function pie2(dataarr2,sumarr2) {
+var ctx = document.getElementById('myChart2').getContext('2d');
+var myChart2 = new Chart(ctx, {
+type: 'pie',
+data: {
+labels: dataarr2,
+datasets: [
+{
+data: sumarr2,
+backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 3
+},
+],
+},
+});
+}
+
+
+
+function seedrows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "seed") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+
+
+function additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round){
+    var tbody = document.getElementById('tbody1');
+    var trow = document.createElement('tr');
+    var td1 = document.createElement('td');
+    var td2 = document.createElement('td');
+    var td3 = document.createElement('td');
+    var td4 = document.createElement('td');
+    var td5 = document.createElement('td');
+    var td6 = document.createElement('td');
+    var td7 = document.createElement('td');
+    var td8 = document.createElement('td');
+    var td9 = document.createElement('td');
+    var td10 = document.createElement('td');
+    var td11 = document.createElement('td');
+    td1.innerHTML = ++Rowno;
+    td2.innerHTML = Permalink;
+    td3.innerHTML = Company;
+    td4.innerHTML = NumEmps;
+    td5.innerHTML = Category;
+    td6.innerHTML = City;
+    td7.innerHTML = State;
+    td8.innerHTML = FundedDate;
+    td9.innerHTML = RaisedAmt;
+    td10.innerHTML = RaisedCurrency;
+    td11.innerHTML = Round;
+    trow.appendChild(td1);
+    trow.appendChild(td2);
+    trow.appendChild(td3);
+    trow.appendChild(td4);
+    trow.appendChild(td5);
+    trow.appendChild(td6);
+    trow.appendChild(td7);
+    trow.appendChild(td8);
+    trow.appendChild(td9);
+    trow.appendChild(td10);
+    trow.appendChild(td11);
+    tbody.appendChild(trow);
+}
+
+function arows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "a") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+function brows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "b") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+function crows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "c") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+function angelrows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "angel") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+function drows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "d") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+function erows(e){
+const dbRef = ref(getDatabase());
+get(child(dbRef, `Data/`)).then((snapshot) => {
+  if (snapshot.exists()) {
+    console.log(snapshot.val());
+    snapshot.forEach(
+        function(records){
+                var Rowno = records.val().Rowno;
+                var Permalink = records.val().Permalink;
+                var Company = records.val().Company;
+                var NumEmps = records.val().NumEmps;
+                var Category = records.val().Category;
+                var City = records.val().City;
+                var State = records.val().State;
+                var FundedDate = records.val().FundedDate;
+                var RaisedAmt = records.val().RaisedAmt;
+                var RaisedCurrency = records.val().RaisedCurrency;
+                var Round = records.val().Round;
+                if (Round == "e") {
+                    additemstotable(Permalink,Company,NumEmps,Category,City,State,FundedDate,RaisedAmt,RaisedCurrency,Round)
+                }
+        });
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+}
+
+
+</script>
+
+</body>
+</html>
